@@ -2,7 +2,8 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { GetArticleQueryDto } from './get-article.dto';
 import { AxiosResponse } from 'axios';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { FetchArticleResponce } from './article.types';
 
 @Injectable()
 export class ArticleService {
@@ -54,15 +55,17 @@ export class ArticleService {
     return isNewContent.join('');
   }
 
-  async getOne(id: string, slug: string, query: GetArticleQueryDto) {
-    let data;
-
+  async getOne(
+    id: string,
+    slug: string,
+    query: GetArticleQueryDto,
+  ): Promise<Observable<FetchArticleResponce>> {
     const res = this.httpService
       .get(
         `https://api.egw.news/counterstrike/news/${id}/${slug}?lang=${query.lang}`,
       )
       .pipe(
-        map((axiosResponse: AxiosResponse) => {
+        map((axiosResponse: AxiosResponse<FetchArticleResponce>) => {
           const modContent = axiosResponse.data.article.contentArr.map(
             (item: string) => {
               if (item[0] !== '<') {
